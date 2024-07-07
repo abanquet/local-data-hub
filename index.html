@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>OECD Local Data Hub</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="img/favicon.ico" type="image/x-icon">
+
+    <script src="https://unpkg.com/chroma-js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="fontawesome/css/brands.css">
+    <link rel="stylesheet" href="fontawesome/css/fontawesome.css">
+    <link rel="stylesheet" href="fontawesome/css/regular.css">
+    <link rel='stylesheet' href='https://unpkg.com/maplibre-gl@4.4.0/dist/maplibre-gl.css' />
+    <script src="https://unpkg.com/maplibre-gl@3.3.1/dist/maplibre-gl.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/pmtiles@3.0.6/dist/pmtiles.js"></script>
+    <script src="https://unpkg.com/@maplibre/maplibre-gl-geocoder@1.2.0/dist/maplibre-gl-geocoder.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/@maplibre/maplibre-gl-geocoder@1.2.0/dist/maplibre-gl-geocoder.css"
+        type="text/css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+    <script src="https://www.unpkg.com/papaparse@5.4.1/papaparse.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/select2.min.js"></script>
+    <link href='https://watergis.github.io/mapbox-gl-legend/mapbox-gl-legend.css' rel='stylesheet' />
+    <script src='https://api.mapbox.com/mapbox-gl-js/v1.13.1/mapbox-gl.js'></script>
+    <script src="https://watergis.github.io/mapbox-gl-legend/mapbox-gl-legend.js"></script>
+</head>
+
+<body class="min-h-screen bg-white">
+    <div id="app" data-v-app="">
+
+        <div class="relative flex min-h-screen flex-col bg-white">
+            <nav class="top-0 border-b border-gray-200 bg-gray-100 sm:sticky sm:z-20 sm:shadow-lg print:!hidden">
+                <!-- <div class="ml-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div class="flex h-16 items-center justify-start"> -->
+                <div class="mx-auto max-w-1xl px-4 sm:px-6 lg:px-8">
+                    <div class="flex h-16 items-center justify-between">
+                        <div class="flex items-center">
+                            <a class="flex shrink-0 items-center mr-4 ml-0" href="https://www.oecd.org/">
+                                <img src="img/logo.svg" class="h-8 sm:h-10 w-auto"/>
+                            </a>
+                            <div class="font-bold text-xl sm:text-2xl text-gray-700 sm:flex hidden"
+                                style="padding: 20px;">
+                                Local Data Hub (beta)
+                            </div>
+                        </div>
+
+
+                        <div class=" sm:-my-px sm:flex sm:space-x-4 justify-between items-center">
+                            <a href="index"
+                                class="!text-gray-900 router-link-exact-active inline-flex items-center px-1 font-bold text-blue hover:text-blue"
+                                aria-current="page">Maps</a>
+                            <a href="profile"
+                                class="inline-flex items-center px-1 font-bold text-gray-500 hover:text-blue">Profile</a>
+                            <a href="methodology"
+                                class="inline-flex items-center px-1 font-bold text-gray-500 hover:text-blue">Methodology</a>
+                        </div>
+
+                    </div>
+                </div>
+            </nav>
+
+            <div class="grow">
+                <div class="relative flex h-[calc(100vh-4rem-1px)] flex-col sm:flex-row">
+                        <!-- <div id="map-topic"
+                        class="z-10 flex w-full shrink-0 flex-col gap-12 overflow-auto border-gray-200 bg-white py-5 px-4 sm:z-10 sm:flex sm:w-[380px] sm:border-r sm:px-6 xl:w-[460px] sm:flex"> -->
+                        
+                        <!-- <div id="map-topic"
+                        class="z-10 flex w-full shrink-0 flex-col gap-12 overflow-auto border-gray-200 bg-white py-5 px-4 xl:w-[460px]"> -->
+                        <div id="map-topic"
+                        class="z-20 flex w-full h-full shrink-0 flex-col gap-12 overflow-auto border-gray-200 bg-white py-5 px-4 sm:z-auto sm:flex sm:w-[380px] sm:border-r sm:px-6 xl:w-[460px]">
+                        <div class="flex flex-col gap-4 break-words print:!w-full sm:w">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <!-- <div class="flex items-center gap-2"> -->
+                                <div id="button-demography"
+                                    class="cursor-pointer flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-xl text-white bg-demography"
+                                    title="Demography"><i class="fa-fw fa-regular fa-people"></i>
+                                </div>
+                                <div id="button-environment"
+                                    class="cursor-pointer flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-xl text-white bg-gray-700 hover:bg-gray-900"
+                                    title="Environment"><i class="fa-fw fa-regular fa-seedling"></i>
+                                </div>
+                                <div id="button-climate"
+                                    class="cursor-pointer flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-xl text-white bg-gray-700 hover:bg-gray-900"
+                                    title="Climate"><i class="fa-fw fa-regular fa-temperature-arrow-up"></i>
+                                </div>
+                                <div id="button-energy"
+                                    class="cursor-pointer flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-xl text-white bg-gray-700 hover:bg-gray-900"
+                                    title="Energy"><i class="fa-fw fa-regular fa-bolt"></i>
+                                </div>
+                                <div id="button-transport"
+                                    class="cursor-pointer flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-xl text-white bg-gray-700 hover:bg-gray-900"
+                                    title="Transport"><i class="fa-fw fa-regular fa-car"></i>
+                                </div>
+                                <div id="button-economy"
+                                    class="cursor-pointer flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-xl text-white bg-gray-700 hover:bg-gray-900"
+                                    title="Economy and Labour"><i class="fa-fw fa-regular fa-building-columns"></i>
+                                </div>
+                                <div id="button-ghsl"
+                                    class="cursor-pointer flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-xl text-white bg-gray-700 hover:bg-gray-900"
+                                    title="Territorial Organisation"><i class="fa-fw fa-regular fa-building-user"></i>
+                                </div>
+                                <div id="button-housing"
+                                    class="cursor-pointer flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-xl text-white bg-gray-700 hover:bg-gray-900"
+                                    title="Housing"><i class="fa-fw fa-regular fa-building"></i>
+                                </div>
+                                <div id="button-services"
+                                    class="cursor-pointer flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-xl text-white bg-gray-700 hover:bg-gray-900"
+                                    title="Services"><i class="fa-fw fa-regular fa-shop"></i>
+                                </div>
+                                <div id="button-munifi"
+                                    class="cursor-pointer flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-xl text-white bg-gray-700 hover:bg-gray-900"
+                                    title="Public finance"><i class="fa-fw fa-regular fa-coins"></i>
+                                </div>
+
+                            </div>
+
+                            <div class="flex flex-col gap-8">
+                                <div id="topic-demography" class="flex flex-col gap-5">
+                                    <div class="flex items-center gap-2">
+                                        <div class="text-lg font-bold">Demography</div>
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white"
+                                                style="background: rgb(178, 82, 144);"><i
+                                                    class="fa-fw fa-regular fa-person"></i></div>
+                                            <div class="font-bold">Population size</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-pop-tot">
+                                                <div class="font-medium text-gray-600">Total population </div><!---->
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white"
+                                                style="background: rgb(178, 82, 144);"><i
+                                                    class="fa-fw fa-regular fa-person-cane"></i></div>
+                                            <div class="font-bold">Age groups</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-youngsh">
+                                                <div class="font-medium text-gray-600">Share of young population (- 14
+                                                    years old) </div><!---->
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-workagesh">
+                                                <div class="font-medium text-gray-600">Share of working age population
+                                                    (15 to 64 years old)</div><!---->
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-oldsh">
+                                                <div class="font-medium text-gray-600">Share of elderly population (+ 65
+                                                    years old)</div><!---->
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white"
+                                                style="background: rgb(178, 82, 144);"><i
+                                                    class="fa-fw fa-regular fa-venus-mars"></i></div>
+                                            <div class="font-bold">Sex ratio</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-sex-ratio">
+                                                <div class="font-medium text-gray-600">Sex ratio (total population)
+                                                </div><!---->
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white"
+                                                style="background: rgb(178, 82, 144);"><i
+                                                    class="fa-fw fa-regular fa-chart-line-up"></i></div>
+                                            <div class="font-bold">Population change</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-popch">
+                                                <div class="font-medium text-gray-600">Population change in the last 5
+                                                    years</div><!---->
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white"
+                                                style="background: rgb(178, 82, 144);"><i
+                                                    class="fa-fw fa-regular fa-baby"></i></div>
+                                            <div class="font-bold">Natural change</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-natch">
+                                                <div class="font-medium text-gray-600">Natural change in the last 5
+                                                    years</div><!---->
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-birth">
+                                                <div class="font-medium text-gray-600">Birth rate</div><!---->
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-death">
+                                                <div class="font-medium text-gray-600">Death rate</div><!---->
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white"
+                                                style="background: rgb(178, 82, 144);"><i
+                                                    class="fa-fw fa-regular fa-globe"></i></div>
+                                            <div class="font-bold">Migration</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-foreign-born">
+                                                <div class="font-medium text-gray-600">Share of foreign-born population
+                                                </div><!---->
+                                            </div>
+
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-netmobmig">
+                                                <div class="font-medium text-gray-600">Net migration rate (internal and
+                                                    international)</div><!---->
+                                            </div>
+
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-netmob">
+                                                <div class="font-medium text-gray-600">Net internal migration rate</div>
+                                                <!---->
+                                            </div>
+
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-netmig">
+                                                <div class="font-medium text-gray-600">Net international migration rate
+                                                </div><!---->
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div id="topic-environment" class="flex flex-col gap-5 hidden">
+                                    <div class="flex items-center gap-2">
+                                        <div class="text-lg font-bold">Environment</div>
+                                    </div>
+
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white"
+                                                style="background: rgb(16, 149, 76);"><i
+                                                    class="fa-fw fa-regular fa-seedling"></i></div>
+                                            <div class="font-bold">Green areas</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-green-sh">
+                                                <div class="font-medium text-gray-600">Share of green areas</div><!---->
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-green-capita">
+                                                <div class="font-medium text-gray-600"> Green areas per capita</div>
+                                                <!---->
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white"
+                                                style="background: rgb(16, 149, 76);"><i
+                                                    class="fa-fw fa-regular fa-trees"></i></div>
+                                            <div class="font-bold">Tree cover change</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-forestch">
+                                                <div class="font-medium text-gray-600">Tree cover change 2000-2020</div>
+                                                <!---->
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white"
+                                                style="background: rgb(16, 149, 76);"><i
+                                                    class="fa-fw fa-regular fa-smog"></i></div>
+                                            <div class="font-bold">Air pollution</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div
+                                                class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-no2">
+                                                <div class="font-medium text-gray-600">NO<sub>2</sub></div>
+                                            </div>
+                                            <!-- <div
+                                                class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-pm25">
+                                                <div class="font-medium text-gray-600">PM2.5</div>
+                                            </div>
+                                            <div
+                                                class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-pm10">
+                                                <div class="font-medium text-gray-600">PM10</div>
+                                            </div>
+                                            <div
+                                                class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-o3">
+                                                <div class="font-medium text-gray-600">O<sub>3</sub></div>
+                                            </div> -->
+                                        </div>
+                                    </div> 
+
+                                </div>
+
+                                <div id="topic-energy" class="flex flex-col gap-5 hidden">
+                                    <div class="flex items-center gap-2">
+                                        <div class="text-lg font-bold">Energy</div>
+                                    </div>
+
+                                    <!-- <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white bg-energy"
+                                                ><i
+                                                    class="fa-fw fa-regular fa-power-off"></i></div>
+                                            <div class="font-bold">Final energy consumption</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div
+                                                class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-enercons">
+                                                <div class="font-medium text-gray-600">Total final energy consumption</div>
+                                            </div>
+                                            <div
+                                                class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-elec">
+                                                <div class="font-medium text-gray-600"> Electricity consumption</div>
+                                            </div>
+                                            <div
+                                                class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-gas">
+                                                <div class="font-medium text-gray-600"> Natural gas consumption</div>
+                                            </div>
+                                        </div>
+                                    </div> -->
+
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div
+                                                class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white bg-energy">
+                                                <i class="fa-fw fa-regular fa-wind-turbine"></i></div>
+                                            <div class="font-bold">Renewable potential</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-solar-power">
+                                                <div class="font-medium text-gray-600">Solar power potential</div>
+                                                <!---->
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-wind-power">
+                                                <div class="font-medium text-gray-600"> Wind power potential</div>
+                                                <!---->
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div
+                                                class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white bg-energy">
+                                                <i class="fa-fw fa-regular fa-fan"></i></div>
+                                            <div class="font-bold">Cooling degree days</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-cdd">
+                                                <div class="font-medium text-gray-600">Cooling degree days in the last 5
+                                                    years</div><!---->
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-cdd-ch">
+                                                <div class="font-medium text-gray-600">Change in cooling degree days
+                                                    compared to 1981-2010
+                                                </div><!---->
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div
+                                                class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white bg-energy">
+                                                <i class="fa-fw fa-regular fa-heat"></i></div>
+                                            <div class="font-bold">Heating degree days</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-hdd">
+                                                <div class="font-medium text-gray-600">Heating degree days in the last 5
+                                                    years</div><!---->
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-hdd-ch">
+                                                <div class="font-medium text-gray-600">Change in heating degree days
+                                                    compared to 1981-2010
+                                                </div><!---->
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+
+                                <div id="topic-transport" class="flex flex-col gap-5 hidden">
+                                    <div class="flex items-center gap-2">
+                                        <div class="text-lg font-bold">Transport</div>
+                                    </div>
+
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div
+                                                class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white bg-transport">
+                                                <i class="fa-fw fa-regular fa-car-side"></i></div>
+                                            <div class="font-bold">Vehicles</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-veh-cap">
+                                                <div class="font-medium text-gray-600"> Passenger motor vehicles per
+                                                    capita</div>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-elec-hyb-veh">
+                                                <div class="font-medium text-gray-600">Share of hybrid or electric
+                                                    passenger vehicles</div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div
+                                                class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white bg-transport">
+                                                <i class="fa-fw fa-regular fa-car-building"></i></div>
+                                            <div class="font-bold">Mode of transport to work</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-commut-main">
+                                                <div class="font-medium text-gray-600">Main mode of transport
+                                                </div>
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-commut-car">
+                                                <div class="font-medium text-gray-600">Car
+                                                </div>
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-commut-public">
+                                                <div class="font-medium text-gray-600">Public transport</div>
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-commut-bike">
+                                                <div class="font-medium text-gray-600">Bike
+                                                </div>
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-commut-walk">
+                                                <div class="font-medium text-gray-600">Walk
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div
+                                                class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white bg-transport">
+                                                <i class="fa-fw fa-regular fa-train"></i></div>
+                                            <div class="font-bold">Public transport</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-public-transp-perf">
+                                                <div class="font-medium text-gray-600"> Public transport performance</div>
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+
+                                </div>
+
+                                <div id="topic-climate" class="flex flex-col gap-5 hidden">
+                                    <div class="flex items-center gap-2">
+                                        <div class="text-lg font-bold">Climate</div>
+                                    </div>
+
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div
+                                                class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white bg-climate">
+                                                <i class="fa-fw fa-regular fa-temperature-arrow-up"></i></div>
+                                            <div class="font-bold">Temperature trends</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-temp">
+                                                <div class="font-medium text-gray-600">Air temperature</div><!---->
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-temp-ch">
+                                                <div class="font-medium text-gray-600">Change in air temperature
+                                                    compared to 1981-2010</div><!---->
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div
+                                                class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white bg-climate">
+                                                <i class="fa-fw fa-regular fa-city"></i></div>
+                                            <div class="font-bold">Urban Heat Island</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div
+                                                class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-uhi-day">
+                                                <div class="font-medium text-gray-600" >Daytime summer urban heat island intensity</div>
+                                            </div>
+                                            <div
+                                                class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-uhi-night">
+                                                <div class="font-medium text-gray-600" >Nighttime summer urban heat island intensity</div>
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-lst-day">
+                                                <div class="font-medium text-gray-600">Daytime summer land surface
+                                                    temperature</div>
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-lst-night">
+                                                <div class="font-medium text-gray-600">Nighttime summer land surface
+                                                    temperature
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div
+                                                class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white bg-climate">
+                                                <i class="fa-fw fa-regular fa-temperature-sun"></i></div>
+                                            <div class="font-bold">Heat stress</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-hot-days">
+                                                <div class="font-medium text-gray-600">Hot days (T<sub>max</sub> > 35°C)
+                                                </div><!---->
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-hot-days-ch">
+                                                <div class="font-medium text-gray-600">Change in hot days
+                                                    (T<sub>max</sub> > 35°C) compared to 1981-2010</div><!---->
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-tropical-nights">
+                                                <div class="font-medium text-gray-600">Tropical nights (T<sub>min</sub>
+                                                    > 20°C)</div><!---->
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-tropical-nights-ch">
+                                                <div class="font-medium text-gray-600">Change in tropical nights
+                                                    (T<sub>min</sub> > 20°C) compared to 1981-2010</div><!---->
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div
+                                                class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white bg-climate">
+                                                <i class="fa-fw fa-regular fa-cloud-showers-heavy"></i></div>
+                                            <div class="font-bold">Precipitation</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-precip">
+                                                <div class="font-medium text-gray-600">Average precipitation</div>
+                                                <!---->
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-precip-ch">
+                                                <div class="font-medium text-gray-600">Average precipitation change
+                                                    compared to 1981-2010</div><!---->
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-ext-precip">
+                                                <div class="font-medium text-gray-600">Extreme precipitation days</div>
+                                                <!---->
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-ext-precip-ch">
+                                                <div class="font-medium text-gray-600">Extreme precipitation days change
+                                                    compared to 1981-2010</div><!---->
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div
+                                                class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white bg-climate">
+                                                <i class="fa-fw fa-regular fa-sun-plant-wilt"></i></div>
+                                            <div class="font-bold">Droughts</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-drought">
+                                                <div class="font-medium text-gray-600">Soil moisture change compared to
+                                                    1981-2010</div><!---->
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div
+                                                class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white bg-climate">
+                                                <i class="fa-fw fa-regular fa-fire"></i></div>
+                                            <div class="font-bold">Fires</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-fire-burned">
+                                                <div class="font-medium text-gray-600">Share of area burned</div><!---->
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div
+                                                class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white bg-climate">
+                                                <i class="fa-fw fa-regular fa-house-flood-water"></i></div>
+                                            <div class="font-bold">River flooding</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-river-flood">
+                                                <div class="font-medium text-gray-600">Share of population exposed to
+                                                    100-year river flooding</div><!---->
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div
+                                                class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white bg-climate">
+                                                <i class="fa-fw fa-regular fa-house-tsunami"></i></div>
+                                            <div class="font-bold">Coastal flooding</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-coastal-flood">
+                                                <div class="font-medium text-gray-600">Share of population exposed to
+                                                    100-year coastal flooding</div><!---->
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div id="topic-economy" class="flex flex-col gap-5 hidden">
+                                    <div class="flex items-center gap-2">
+                                        <div class="text-lg font-bold">Economy and labour</div>
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white"
+                                                style="background: rgb(77, 82, 168);"><i
+                                                    class="fa-fw fa-regular fa-dollar-sign"></i></div>
+                                            <div class="font-bold">Income distribution</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-median-income">
+                                                <div class="font-medium text-gray-600">Equivalised household disposable income</div>
+                                                <!---->
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-poverty">
+                                                <div class="font-medium text-gray-600">Relative poverty rate (60% of
+                                                    median disposable income)</div><!---->
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-gini">
+                                                <div class="font-medium text-gray-600">Gini coefficient</div><!---->
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white"
+                                                style="background: rgb(77, 82, 168);"><i
+                                                    class="fa-fw fa-regular fa-briefcase"></i></div>
+                                            <div class="font-bold">Labour</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-unempl-rate">
+                                                <div class="font-medium text-gray-600">Unemployment rate</div><!---->
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                                <div id="topic-ghsl" class="flex flex-col gap-5 hidden">
+                                    <div class="flex items-center gap-2">
+                                        <div class="text-lg font-bold">Territorial organisation</div>
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white"
+                                                style="background: rgb(122, 64, 43);"><i
+                                                    class="fa-fw fa-regular fa-person-arrow-up-from-line"></i></div>
+                                            <div class="font-bold">Population density</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-pop-dens">
+                                                <div class="font-medium text-gray-600">Population density</div><!---->
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white"
+                                                style="background: rgb(122, 64, 43);"><i
+                                                    class="fa-fw fa-regular fa-square"></i></div>
+                                            <div class="font-bold">Built-up surface</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-builts-dens">
+                                                <div class="font-medium text-gray-600">Total built-up surface per capita
+                                                </div><!---->
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-res-builts-dens">
+                                                <div class="font-medium text-gray-600">Residential built-up surface per
+                                                    capita</div><!---->
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-nres-builts-dens">
+                                                <div class="font-medium text-gray-600">Non-residential built-up surface
+                                                    per capita</div><!---->
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-builts-gr">
+                                                <div class="font-medium text-gray-600">Built-up surface growth 2000-2020
+                                                </div><!---->
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-res-builts-gr">
+                                                <div class="font-medium text-gray-600">Residential built-up surface
+                                                    growth 2000-2020</div><!---->
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white"
+                                                style="background: rgb(122, 64, 43);"><i
+                                                    class="fa-fw fa-regular fa-cube"></i></div>
+                                            <div class="font-bold">Built-up volume</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-builtv-dens">
+                                                <div class="font-medium text-gray-600">Built-up volume per capita</div>
+                                                <!---->
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-res-builtv-dens">
+                                                <div class="font-medium text-gray-600">Residential built-up volume per
+                                                    capita</div><!---->
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-nres-builtv-dens">
+                                                <div class="font-medium text-gray-600">Non-residential built-up volume
+                                                    per capita</div><!---->
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-builth">
+                                                <div class="font-medium text-gray-600">Average building height</div>
+                                                <!---->
+                                            </div>
+                                        </div>
+                                        <!-- <div class="flex flex-col gap-2">
+                                            <div
+                                                class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-builtv-gr">
+                                                <div class="font-medium text-gray-600" >Built-up volume growth 2000-2020</div>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div
+                                                class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-res-builtv-gr">
+                                                <div class="font-medium text-gray-600" >Residential built-up volume growth 2000-2020</div>
+                                            </div>
+                                        </div> -->
+
+                                    </div>
+
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white"
+                                                style="background: rgb(122, 64, 43);"><i
+                                                    class="fa-fw fa-regular fa-tree-city"></i></div>
+                                            <div class="font-bold">Degree of urbanisation</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-degurba-l1">
+                                                <div class="font-medium text-gray-600">Level 1</div><!---->
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-degurba-l2">
+                                                <div class="font-medium text-gray-600">Level 2</div><!---->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="topic-housing" class="flex flex-col gap-5 hidden">
+                                    <div class="flex items-center gap-2">
+                                        <div class="text-lg font-bold">Housing</div>
+                                    </div>
+
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div
+                                                class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white bg-housing">
+                                                <i class="fa-fw fa-regular fa-house"></i></div>
+                                            <div class="font-bold">Dwelling stock</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-nb-dwellings">
+                                                <div class="font-medium text-gray-600">Number of dwellings</div>
+                                            </div>
+                                            <div class="flex flex-col gap-2">
+                                                <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                    id="button-dwellings-occup">
+                                                    <div class="font-medium text-gray-600">Occupied dwellings
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="flex flex-col gap-2">
+                                                <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                    id="button-dwellings-vacant">
+                                                    <div class="font-medium text-gray-600">Vacant dwellings
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="flex flex-col gap-2">
+                                                <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                    id="button-dwellings-own">
+                                                    <div class="font-medium text-gray-600">Dwellings occupied by owner</div>
+                                                </div>
+                                            </div>
+                                            <div class="flex flex-col gap-2">
+                                                <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                    id="button-dwellings-rent">
+                                                    <div class="font-medium text-gray-600">Dwellings occupied by renter</div>
+                                                </div>
+                                            </div>
+                                            <div class="flex flex-col gap-2">
+                                                <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                    id="button-dwellings-main">
+                                                    <div class="font-medium text-gray-600">Main residences
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="flex flex-col gap-2">
+                                                <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                    id="button-dwellings-second">
+                                                    <div class="font-medium text-gray-600">Secondary residences
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div
+                                                class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white bg-housing">
+                                                <i class="fa-fw fa-regular fa-house"></i></div>
+                                            <div class="font-bold">Housing costs</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-rent-m2">
+                                                <div class="font-medium text-gray-600">Rent per m²</div>
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-housing-price">
+                                                <div class="font-medium text-gray-600">Transaction price</div>
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-housing-price-m2">
+                                                <div class="font-medium text-gray-600">Transaction price per m²
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div
+                                                class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white bg-housing">
+                                                <i class="fa-fw fa-regular fa-fireplace"></i></div>
+                                            <div class="font-bold">Energy used for heating in dwellings</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-heating-main">
+                                                <div class="font-medium text-gray-600">Main energy source</div>
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-heating-elec">
+                                                <div class="font-medium text-gray-600">Electricity</div>
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-heating-gas">
+                                                <div class="font-medium text-gray-600">Natural gas</div>
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-heating-oil">
+                                                <div class="font-medium text-gray-600">Fuel oil</div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div id="topic-services" class="flex flex-col gap-5 hidden">
+                                    <div class="flex items-center gap-2">
+                                        <div class="text-lg font-bold">Services</div>
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white"
+                                                style="background: rgb(255, 130, 0);"><i
+                                                    class="fa-fw fa-regular fa-school"></i></div>
+                                            <div class="font-bold">Education</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-schools-dist">
+                                                <div class="font-medium text-gray-600">Distance to closest school</div><!---->
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-childcare-dist">
+                                                <div class="font-medium text-gray-600">Distance to closest childcare</div><!---->
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white"
+                                                style="background: rgb(255, 130, 0);"><i
+                                                    class="fa-fw fa-regular fa-hospital"></i></div>
+                                            <div class="font-bold">Healthcare</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-pharmacies-dist">
+                                                <div class="font-medium text-gray-600">Distance to closest pharmacy</div><!---->
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-hospitals-dist">
+                                                <div class="font-medium text-gray-600">Distance to closest hospital</div><!---->
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white"
+                                                style="background: rgb(255, 130, 0);"><i
+                                                    class="fa-fw fa-regular fa-wifi"></i></div>
+                                            <div class="font-bold">Digitalisation</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-download-fixed">
+                                                <div class="font-medium text-gray-600">Fixed download speed</div><!---->
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-upload-fixed">
+                                                <div class="font-medium text-gray-600">Fixed upload speed</div><!---->
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-download-mobile">
+                                                <div class="font-medium text-gray-600">Mobile download speed</div>
+                                                <!---->
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-upload-mobile">
+                                                <div class="font-medium text-gray-600">Mobile upload speed</div><!---->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="topic-munifi" class="flex flex-col gap-5 hidden">
+                                    <div class="flex items-center gap-2">
+                                        <div class="text-lg font-bold">Municipal Government Finance</div>
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div
+                                                class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white bg-munifi">
+                                                <i class="fa-fw fa-regular fa-coins"></i></div>
+                                            <div class="font-bold">Expenditure</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-munifi-tot-expenditure">
+                                                <div class="font-medium text-gray-600">Total expenditure per capita</div><!---->
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-munifi-cur-expenditure">
+                                                <div class="font-medium text-gray-600">Current expenditure per capita</div><!---->
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-munifi-cap-expenditure">
+                                                <div class="font-medium text-gray-600">Capital expenditure per capita</div><!---->
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-munifi-main-cat-expenditure">
+                                                <div class="font-medium text-gray-600">Main category of expenditure</div><!---->
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-munifi-main-cofog-expenditure">
+                                                <div class="font-medium text-gray-600">Main sector of expenditure</div><!---->
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div
+                                                class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white bg-munifi">
+                                                <i class="fa-fw fa-regular fa-sack-dollar"></i></div>
+                                            <div class="font-bold">Revenue</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-munifi-tot-revenue">
+                                                <div class="font-medium text-gray-600">Total revenue per capita</div><!---->
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-munifi-tax-revenue">
+                                                <div class="font-medium text-gray-600">Tax revenue per capita</div><!---->
+                                            </div>
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-munifi-source-revenue">
+                                                <div class="font-medium text-gray-600">Main source of revenue</div><!---->
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-col gap-2">
+                                        <div class="flex items-start gap-2">
+                                            <div
+                                                class="flex h-6 w-6 items-center justify-center rounded-full text-xs text-white bg-munifi">
+                                                <i class="fa-fw fa-regular fa-box-dollar"></i></div>
+                                            <div class="font-bold">Debt</div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <div class="cursor-pointer justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm hover:bg-gray-50"
+                                                id="button-munifi-tot-debt">
+                                                <div class="font-medium text-gray-600">Total debt per capita</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div> 
+                                <div class="flex flex-col gap-5">
+                                    <div><br></div>
+                                </div> 
+                                <div class="fixed inset-x-0 bottom-0 z-20 mt-5 flex items-center justify-center border-t border-gray-200 bg-white py-3 sm:z-auto sm:hidden">
+                                    <button
+                                        id="map-toggle-button"
+                                        class="inline-flex items-center rounded-md border border-transparent py-2 px-4 text-sm font-medium shadow-sm transition focus:outline-none focus:ring-2 focus:ring-shift-blue focus:ring-offset-2 sm:whitespace-nowrap bg-gray-800 text-white hover:bg-indigo-900"
+                                        type="button"> 
+                                        Go to map 
+                                    </button>
+                                </div>                                       
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+
+                    <!-- <div class="z-10 flex flex-1 flex-col">
+                        <div id="map-container" class="absolute inset-0 h-full w-full sm:relative">
+                            <div class="relative h-full w-full">
+                                <div id="map" class="" style="height: 100%; width: 100%;">
+                                </div>
+                            </div>
+                        </div>
+                    </div> -->
+                    <div class="grow relative">
+                        <div id="map-container" class="h-full w-full">
+                            <div id="map" class="h-full w-full">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    </div>
+
+    <!-- <div id="map" style="width: 100vw; height: 100vh; background: #fdfdfd"></div> -->
+
+    <script type="text/javascript" src="./js/map.js"></script>
+    <script type="text/javascript" src="./js/tabs.js"></script>
+
+    <script>
+        loadCSV("data_raw/data_years.csv");
+
+        var currentTopicName;
+        var currentLayer;
+        var currentSauData;
+        var currentLegend;
+        var currentButton;
+        var currentChartControl;
+
+        currentTopicName = "demography";
+        buildTabTopic("demography");
+        buildTabTopic("environment");
+        buildTabTopic("energy");
+        buildTabTopic("transport");
+        buildTabTopic("climate");
+        buildTabTopic("economy");
+        buildTabTopic("munifi");
+        buildTabTopic("ghsl");
+        buildTabTopic("housing");
+        buildTabTopic("services");
+        buildTabTopic("munifi");
+
+        map = buildBaseMap();
+
+        createLayerAndLegend("popch", "POP_CH", "Population change", "%", -30, 30, [-30, -20, -10, 0, 10, 20, 30], scaleRdBu, firstLayer = true, minusLow = true);
+
+        createLayerAndLegend("median-income", "DISP_INC_EQ", "Equivalised household<br>disposable income", "USD", 10000, 50000, [10000, 15000, 20000, 25000, 30000, 35000, 40000, 45000, 50000], scaleBlues, firstLayer = false);
+        createLayerAndLegend("gini", "DISP_INC_EQ_GINI", "Gini coefficient", "", 0.2, 0.5, [0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5], scaleBlues, firstLayer = false, minusLow = true);
+        createLayerAndLegend("poverty", "POV_RATE_60", "Poverty rate", "%", 5, 40, [5, 10, 15, 20, 25, 30, 35, 40], scaleBlues, firstLayer = false, minusLow = true);
+        createLayerAndLegend("unempl-rate", "UNEMP_RA", "Unemployment rate", "%", 0, 30, [0, 5, 10, 15, 20, 25, 30], scaleBlues, firstLayer = false);
+
+        createLayerAndLegend("pop-dens", "pop_density_km2", "Population density", "people/km²", 0, 10000, [0, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000], scaleBrowns, firstLayer = false);
+        createLayerAndLegend("builts-dens", "BUILT_S__T", "Built-up surface<br>per capita", "m²/capita", 0, 600, [0, 100, 200, 300, 400, 500, 600], scaleBrowns, firstLayer = false);
+        createLayerAndLegend("res-builts-dens", "BUILT_S_RES", "Residential built-up<br>surface per capita<br>", "m²/capita", 0, 600, [0, 100, 200, 300, 400, 500, 600], scaleBrowns, firstLayer = false);
+        createLayerAndLegend("nres-builts-dens", "BUILT_S_NRES", "Non-residential built-up<br>surface per capita<br>", "m²/capita", 0, 400, [0, 50, 100, 150, 200, 250, 300, 350, 400], scaleBrowns, firstLayer = false);
+        createLayerAndLegend("builts-gr", "BUILT_S__T_CH_2000_2020", "Built-up surface<br>growth 2000-2020", "%", -80, 80, [-80, -60, -40, -20, 0, 20, 40, 60, 80], scaleBuRd, firstLayer = false, minusLow = true);
+        createLayerAndLegend("res-builts-gr", "BUILT_S_RES_CH_2000_2020", "Residential built-up<br>surface growth<br>2000-2020", "%", -80, 80, [-80, -60, -40, -20, 0, 20, 40, 60, 80], scaleBuRd, firstLayer = false, minusLow = true);
+        createLayerAndLegend("builtv-dens", "BUILT_V__T", "Built-up volume<br>per capita<br>", "m³/capita", 0, 1500, [0, 300, 600, 900, 1200, 1500], scaleBrowns, firstLayer = false);
+        createLayerAndLegend("res-builtv-dens", "BUILT_V_RES", "Residential built-up<br>volume per capita<br>", "m³/capita", 0, 1500, [0, 300, 600, 900, 1200, 1500], scaleBrowns, firstLayer = false);
+        createLayerAndLegend("nres-builtv-dens", "BUILT_V_NRES", "Non-residential built-up<br>volume per capita<br>", "m³/capita", 0, 1000, [0, 200, 400, 600, 800, 1000], scaleBrowns, firstLayer = false);
+        createLayerAndLegend("builth", "BUILT_H", "Average building<br>height", "m", 0, 8, [0, 1, 2, 3, 4, 5, 6, 7, 8], scaleBrowns, firstLayer = false);
+        // createLayerAndLegend("builtv-gr", "BUILT_V_CH__T", "Built-up volume growth 2000-2020", "%", -80, 80, [-80, -60, -40, -20, 0, 20, 40, 60, 80], scaleBuRd, firstLayer=false,  minusLow=true);
+        // createLayerAndLegend("res-builtv-gr", "BUILT_V_CH_RES", "Residential built-up volume growth 2000-2020", "%", -80, 80, [-80, -60, -40, -20, 0, 20, 40, 60, 80], scaleBuRd, firstLayer=false,  minusLow=true);
+
+        degurbaL1Colors = {
+            'City': 'cornflowerblue',
+            'Town and semi-dense area': '#ff7f0e',
+            'Rural area': 'olivedrab'
+        };
+        degurbaL2Colors = {
+            'City': 'cornflowerblue', // Blue
+            'Dense town': '#FFA500', // Orange
+            'Semi-dense town': '#FF8C00', // A different shade of orange
+            'Suburban or peri-urban area': '#FF6347', // Yet another shade of orange
+            'Village': '#8FB31D', // Green
+            'Dispersed rural area': '#77DD77', // A shade of green
+            'Mostly uninhabited area': '#0B610B' // Green
+        };
+        createLayerAndLegendCategorical("degurba-l1", "DEGURBA_L1", "Degree of urbanisation", degurbaL1Colors);
+        createLayerAndLegendCategorical("degurba-l2", "DEGURBA_L2", "Degree of urbanisation", degurbaL2Colors);
+
+        createLayerAndLegend("pop-tot", "POP_T", "Total population", "", 0, 25000, [0, 5000, 10000, 15000, 20000, 25000], scalePinks, firstLayer = false);
+        createLayerAndLegend("natch", "NETNAT_RATE", "Net natural change rate", "%", -30, 30, [-30, -20, -10, 0, 10, 20, 30], scaleRdBu, firstLayer = false, minusLow = true);
+        createLayerAndLegend("netmobmig", "NETMOBMIG_RATE", "Net migration rate", "%", -30, 30, [-30, -20, -10, 0, 10, 20, 30], scaleRdBu, firstLayer = false, minusLow = true);
+        createLayerAndLegend("netmob", "NETMOB_RATE", "Net internal migration rate", "%", -30, 30, [-30, -20, -10, 0, 10, 20, 30], scaleRdBu, firstLayer = false, minusLow = true);
+        createLayerAndLegend("netmig", "NETMIG_RATE", "Net international migration rate", "%", -30, 30, [-30, -20, -10, 0, 10, 20, 30], scaleRdBu, firstLayer = false, minusLow = true);
+        createLayerAndLegend("oldsh", "OLD_SH", "Share of elderly population", "%", 0, 40, [0, 5, 10, 15, 20, 25, 30, 35, 40], scalePinks, firstLayer = false);
+        createLayerAndLegend("workagesh", "WORKAGE_SH", "Share of working age population", "%", 30, 80, [30, 40, 50, 60, 70, 80], scalePinks, firstLayer = false, minusLow = true);
+        createLayerAndLegend("youngsh", "YOUTH_SH", "Share of young population", "%", 0, 30, [0, 5, 10, 15, 20, 25, 30], scalePinks, firstLayer = false);
+        createLayerAndLegend("foreign-born", "MIGRANT_SH", "Share of foreign-born population", "%", 0, 40, [0, 5, 10, 15, 20, 25, 30, 35, 40], scalePinks, firstLayer = false);
+        createLayerAndLegend("sex-ratio", "SEX_RATIO_TOT", "Sex ratio", "", 85, 115, [85, 90, 95, 100, 105, 110, 115], scaleRdBu, firstLayer = false, minusLow = true);
+        createLayerAndLegend("birth", "BIRTHS_RATE", "Birth rate", "births per 1000 people", 0, 25, [0, 5, 10, 15, 20, 25], scalePinks, firstLayer = false);
+        createLayerAndLegend("death", "DEATHS_RATE", "Death rate", "deaths per 1000 people", 0, 25, [0, 5, 10, 15, 20, 25], scalePinks, firstLayer = false);
+
+        createLayerAndLegend("temp", "AIR_TEMP2M", "Average air temperature", "°C", 5, 25, [5, 10, 15, 20, 25], scaleReds, firstLayer = false, minusLow = true);
+        createLayerAndLegend("temp-ch", "AIR_TEMP2M_DIFF_1981_2010", "Average air temperature change<br>compared to 1981-2010", "°C", -3, 3, [-3, -2.5, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3], scaleBuRd, firstLayer = false, minusLow = true);
+        createLayerAndLegend("uhi-day", "UHI_DAY_SUMMER", "Summer daytime<br>urban heat island", "°C", 0, 5, [0, 1, 2, 3, 4, 5], scaleReds, firstLayer=false,  minusLow=true);
+        createLayerAndLegend("uhi-night", "UHI_NIGHT_SUMMER", "Summer daytime<br>urban heat island", "°C", 0, 5, [0, 1, 2, 3, 4, 5], scaleReds, firstLayer=false,  minusLow=true);
+        createLayerAndLegend("lst-day", "LST_DAY_SUMMER", "Summer daytime<br>surface temperature", "°C", 20, 40, [20, 25, 30, 35, 40], scaleReds, firstLayer = false, minusLow = true);
+        createLayerAndLegend("lst-night", "LST_NIGHT_SUMMER", "Summer nighttime<br>surface temperature", "°C", 10, 30, [10, 15, 20, 25, 30], scaleReds, firstLayer = false, minusLow = true);
+        createLayerAndLegend("hot-days", "HOT_DAYS", "Number of hot days<br>(Tmax > 35°C)", "days", 0, 30, [0, 5, 10, 15, 20, 25, 30], scaleReds, firstLayer = false);
+        createLayerAndLegend("hot-days-ch", "HOT_DAYS_DIFF_1981_2010", "Change in number of hot days", "days", -14, 14, [-14, -10, -6, -2, 2, 6, 10, 14], scaleBuRd, firstLayer = false, minusLow = true);
+        createLayerAndLegend("tropical-nights", "TROPICAL_NIGHTS", "Number of tropical nights<br>(Tmin > 20°C)", "nights", 0, 50, [0, 10, 20, 30, 40, 50], scaleReds, firstLayer = false);
+        createLayerAndLegend("tropical-nights-ch", "TROPICAL_NIGHTS_DIFF_1981_2010", "Change in number of tropical nights", "nights", -14, 14, [-14, -10, -6, -2, 2, 6, 10, 14], scaleBuRd, firstLayer = false, minusLow = true);
+        createLayerAndLegend("precip", "PRECIP_SUM", "Average annual precipitation", "mm", 0, 1500, [0, 250, 500, 750, 1000, 1250, 1500], scaleBlues, firstLayer = false);
+        createLayerAndLegend("precip-ch", "PRECIP_SUM_DIFF_1981_2010", "Change in annual precipitation<br>compared to 1981-2010", "mm", -100, 100, [-100, -60, -20, 20, 60, 100], scaleRdBu, firstLayer = false, minusLow = true);
+        createLayerAndLegend("ext-precip", "EXT_PRECIP_DAYS", "Annual extreme precipitation days", "days", 0, 50, [0, 10, 20, 30, 40, 50], scaleBlues, firstLayer = false);
+        createLayerAndLegend("ext-precip-ch", "EXT_PRECIP_DAYS_DIFF_1981_2010", "Change in extreme precipitation days<br>compared to 1981-2010", "days", -10, 10, [-10, -6, -2, 2, 6, 10], scaleRdBu, firstLayer = false, minusLow = true);
+        createLayerAndLegend("drought", "SOIL_MOIST_L1_CH_1981_2018", "Soil moisture change<br>compared to 1981-2010", "%", -10, 10, [-10, -6, -2, 2, 6, 10], scaleRdBu, firstLayer = false, minusLow = true);
+        createLayerAndLegend("fire-burned", "FIRE_TOTAL_AREA_SH", "Share of area burned<br>in the last 5 years", "%", 0, 50, [0, 10, 20, 30, 40, 50], scaleReds, firstLayer = false);
+        createLayerAndLegend("river-flood", "RIVER_FLOOD_RP100_POP_SH", "Population exposure to 100-year river flooding", "%", 0, 60, [0, 10, 20, 30, 40, 50, 60], scaleReds, firstLayer = false);
+        createLayerAndLegend("coastal-flood", "COASTAL_FLOOD_RP100_POP_SH", "Population exposure to 100-year coastal flooding", "%", 0, 60, [0, 10, 20, 30, 40, 50, 60], scaleReds, firstLayer = false);
+
+        createLayerAndLegend("green-sh", "GREEN_AREA_SHARE", "Green area share", "%", 0, 100, [0, 20, 40, 50, 60, 70, 80, 90, 100], scaleGreens, firstLayer = false);
+        createLayerAndLegend("green-capita", "GREEN_AREA_CAPITA", "Green area per capita", "m²/capita", 0, 1400, [0, 200, 400, 600, 800, 1000, 1200, 1400], scaleGreens, firstLayer = false);
+        createLayerAndLegend("forestch", "FOREST_CH", "Tree cover change", "%", -30, 30, [-30, -10, -5, -1, 1, 5, 10, 30], scaleRdBu, firstLayer = false, minusLow = true);
+        createLayerAndLegend("no2", "NO2_POP_W_MEAN", "Population exposure to NO<sub>2</sub>", "μg/m³", 0, 30, [0, 5, 10, 15, 20, 25, 30], scaleReds, firstLayer=false);
+        // createLayerAndLegend("pm25", "PM2_5_POP_W_MEAN", "Population exposure to PM2.5", "μg/m³", 5, 15, [5, 7.5, 10, 12.5, 15], scaleReds, firstLayer=false);
+        // createLayerAndLegend("pm10", "PM10_POP_W_MEAN", "Population exposure to PM10", "μg/m³", 0, 35, [0, 5, 10, 15, 20, 25, 30, 35], scaleReds, firstLayer=false);
+        // createLayerAndLegend("o3", "O3_POP_W_MEAN", "Population exposure to O<sub>3</sub>", "μg/m³", 40, 90, [40, 50, 60, 70, 80, 90], scaleReds, firstLayer=false);
+
+        // createLayerAndLegend("enercons", "ENER_CONS", "Total final energy consumption", "MWh", 0, 3000000, [0, 500000, 1000000, 1500000, 2000000, 2500000, 3000000], scalePurples, firstLayer=false);
+        // createLayerAndLegend("elec", "ELEC_CONS", "Electricity consumption", "MWh", 0, 50000, [0, 10000, 20000, 30000, 40000, 50000], scalePurples, firstLayer=false);
+        // createLayerAndLegend("gas", "GAS_CONS", "Natural gas consumption", "MWh", 0, 200000, [0, 25000, 50000, 75000, 100000, 125000, 150000, 175000, 200000], scalePurples, firstLayer=false);
+        createLayerAndLegend("solar-power", "SOLAR_POWER_POT", "Photovoltaic Power<br>Potential", "kWh/kWp", 3, 5, [3, 3.5, 4, 4.5, 5], scalePurples, firstLayer = false, minusLow = true);
+        createLayerAndLegend("wind-power", "WIND_POWER_POT", "Mean wind power<br>density", "W/m²", 0, 1250, [0, 250, 500, 750, 1000, 1250], scalePurples, firstLayer = false);
+        createLayerAndLegend("cdd", "CDD_T_22C", "Cooling Degree Days", "", 0, 3000, [0, 500, 1000, 1500, 2000, 2500, 3000], scalePurples, firstLayer = false);
+        createLayerAndLegend("cdd-ch", "CDD_T_22C_CH", "Change in Cooling<br>Degree Days", "", -100, 100, [-100, -80, -60, -40, -20, 0, 20, 40, 60, 80, 100], scaleBuRd, firstLayer = false, minusLow = true);
+        createLayerAndLegend("hdd", "HDD_T_15C", "Heating Degree Days", "", 0, 3000, [0, 500, 1000, 1500, 2000, 2500, 3000], scalePurples, firstLayer = false);
+        createLayerAndLegend("hdd-ch", "HDD_T_15C_CH", "Change in Heating<br>Degree Days", "", -500, 500, [-500, -400, -300, -200, -100, 0, 100, 200, 300, 400, 500], scaleBuRd, firstLayer = false, minusLow = true);
+
+
+        createLayerAndLegend("veh-cap", "PASG_VEH_CAP", "Private motor vehicles<br>", "vehicles per 1000 people", 0, 1000, [0, 200, 400, 600, 800, 1000], scaleGreenBlue, firstLayer = false);
+        createLayerAndLegend("elec-hyb-veh", "SH_ELEC_HYB_PASG_VEH", "Share of hyrbid or<br>electric private<br>motor vehicles", "%", 0, 20, [0, 5, 10, 15, 20], scaleGreenBlue, firstLayer = false);
+        createLayerAndLegend("commut-car", "SH_COMMUT_CAR", "Share of people<br>commuting by car", "%", 0, 100, [0, 20, 40, 60, 80, 100], scaleGreenBlue, firstLayer = false);
+        createLayerAndLegend("commut-public", "SH_COMMUT_PUBLIC_TRANSPORT", "Share of people commuting<br>by public transport", "%", 0, 50, [0, 10, 20, 30, 40, 50], scaleGreenBlue, firstLayer = false);
+        createLayerAndLegend("commut-bike", "SH_COMMUT_BIKE", "Share of people<br>biking by work", "%", 0, 20, [0, 5, 10, 15, 20], scaleGreenBlue, firstLayer = false);
+        createLayerAndLegend("commut-walk", "SH_COMMUT_WALK", "Share of people<br>walking to work", "%", 0, 20, [0, 5, 10, 15, 20], scaleGreenBlue, firstLayer = false);
+        createLayerAndLegend("public-transp-perf", "TP_TRANSIT_30_8000", "Public transport<br>performance", "", 0, 0.2, [0, 0.05, 0.1, 0.15, 0.20], scaleGreenBlue, firstLayer = false);
+        commutColors = {
+            'Car': 'cornflowerblue',
+            'Public transport': 'mediumpurple',
+            'Bike': 'yellowgreen',
+            'Walk': 'gold',
+        };
+        createLayerAndLegendCategorical("commut-main", "MAIN_COMMUT", "Main mode of transport<br>for commuting", commutColors);
+
+        createLayerAndLegend("nb-dwellings", "NB_UNITS", "Number of dwellings", "", 0, 10000, [0, 2000, 4000, 6000, 8000, 10000], scaleBlues2, firstLayer = false);
+        createLayerAndLegend("dwellings-occup", "OCCUP_SH", "Share of occupied<br>dwellings", "%", 50, 100, [50, 60, 70, 80, 90, 100], scaleBlues2, firstLayer = false);
+        createLayerAndLegend("dwellings-vacant", "VAC_SH", "Share of vacant<br>dwellings", "%", 0, 25, [0, 5, 10, 15, 20, 25], scaleBlues2, firstLayer = false);
+        createLayerAndLegend("dwellings-own", "OWN_SH", "Share of dwellings<br>occupied by owner", "%", 0, 70, [0, 10, 20, 30, 40, 50, 60, 70], scaleBlues2, firstLayer = false);
+        createLayerAndLegend("dwellings-rent", "RENT_SH", "Share of dwellings<br>occupied by renter", "%", 0, 50, [0, 10, 20, 30, 40, 50], scaleBlues2, firstLayer = false);
+        createLayerAndLegend("dwellings-main", "MAIN_RES_SH", "Share of main<br>residences", "%", 0, 100, [0, 20, 40, 60, 80, 100], scaleBlues2, firstLayer = false);
+        createLayerAndLegend("dwellings-second", "SECOND_RES_SH", "Share of secondary<br>residences", "%", 0, 25, [0, 5, 10, 15, 20, 25], scaleBlues2, firstLayer = false);
+        createLayerAndLegend("heating-elec", "ENER_HEAT_SH_ELEC", "Share of dwellings<br>with electricity as main<br>source of heating", "%", 0, 30, [0, 5, 10, 15, 20, 25, 30], scaleBlues2, firstLayer = false);
+        createLayerAndLegend("heating-gas", "ENER_HEAT_SH_GAS", "Share of dwellings<br>with natural gas as main<br>source of heating", "%", 0, 30, [0, 5, 10, 15, 20, 25, 30], scaleBlues2, firstLayer = false);
+        createLayerAndLegend("heating-oil", "ENER_HEAT_SH_OIL", "Share of dwellings<br>with oil as main<br>source of heating", "%", 0, 30, [0, 5, 10, 15, 20, 25, 30], scaleBlues2, firstLayer = false);
+
+        enerHeatDwellingColors = {
+            'Electricity': 'cornflowerblue',
+            'Natural gas': 'mediumpurple',
+            'Fuel oil': 'sienna',
+            'Biomass': 'yellowgreen',
+            'Other': 'gold',
+            'Coal': 'black',
+        };
+        createLayerAndLegendCategorical("heating-main", "MAIN_ENER_HEAT", "Main energy source for<br>heating in dwellings", enerHeatDwellingColors);
+
+        createLayerAndLegend("rent-m2", "RENT_PRICE_T_M2", "Average rent", "USD/m²", 0, 50, [0, 10, 20, 30, 40, 50], scaleBlues2, firstLayer = false, minusLow = true);
+        createLayerAndLegend("housing-price", "SELL_PRICE_T", "Transaction price", "USD", 0, 1000000, [0, 200000, 600000, 800000, 1000000], scaleBlues2, firstLayer = false);
+        createLayerAndLegend("housing-price-m2", "SELL_PRICE_T_M2", "Transaction price", "USD/m²", 0, 10000, [0, 2000, 6000, 8000, 10000], scaleBlues2, firstLayer = false);
+
+        createLayerAndLegend("download-fixed", "FIXED_AVG_D_DEV_NAT", "Fixed download speed<br>(deviation from national<br>average)", "%", -100, 100, [-100, -70, -40, -10, 10, 40, 70, 100], scaleRdBu, firstLayer = false, minusLow = true);
+        createLayerAndLegend("upload-fixed", "FIXED_AVG_U_DEV_NAT", "Fixed upload speed<br>(deviation from national<br>average)", "%", -100, 100, [-100, -70, -40, -10, 10, 40, 70, 100], scaleRdBu, firstLayer = false, minusLow = true);
+        createLayerAndLegend("download-mobile", "MOBILE_AVG_D_DEV_NAT", "Fixed download speed<br>(deviation from national<br>average)", "%", -100, 100, [-100, -70, -40, -10, 10, 40, 70, 100], scaleRdBu, firstLayer = false, minusLow = true);
+        createLayerAndLegend("upload-mobile", "MOBILE_AVG_U_DEV_NAT", "Fixed upload speed<br>(deviation from national<br>average)", "%", -100, 100, [-100, -70, -40, -10, 10, 40, 70, 100], scaleRdBu, firstLayer = false, minusLow = true);
+        createLayerAndLegend("schools-dist", "SCHOOLS_DIST_MEAN", "Distance to closest<br>school", "m", 0, 10000, [0, 2000, 4000, 6000, 8000, 10000], scaleOranges, firstLayer = false, minusLow = false);
+        createLayerAndLegend("childcare-dist", "CHILDCARE_DIST_MEAN", "Distance to closest<br>childcare", "m", 0, 10000, [0, 2000, 4000, 6000, 8000, 10000], scaleOranges, firstLayer = false, minusLow = false);
+        createLayerAndLegend("hospitals-dist", "HOSPITALS_DIST_MEAN", "Distance to closest<br>hospital", "m", 0, 50000, [0, 10000, 20000, 40000, 50000], scaleOranges, firstLayer = false, minusLow = false);
+        createLayerAndLegend("pharmacies-dist", "PHARMACIES_DIST_MEAN", "Distance to closest<br>pharmacy", "m", 0, 10000, [0, 2000, 4000, 6000, 8000, 10000], scaleOranges, firstLayer = false, minusLow = false);
+
+        munifiExpendCatColors = {
+            'Capital expenditure': 'cornflowerblue', 
+            'Compensation of employees': 'mediumpurple', 
+            'Intermediate consumption': 'sienna', 
+            'Current social expenditure': 'yellowgreen',
+            'Financial charges (including interest charges)': 'gold',
+            'Other current expenditure': '#FF6347',
+            'Subsidies and current transfers': '#0B610B',
+         };
+
+         munifiExpendCofogColors = {
+            'General public service': '#1f77b4', 
+            'Defence': '#ff7f0e', 
+            'Public order and safety': '#2ca02c', 
+            'Economic affairs (inc. transport)': '#d62728',
+            'Environmental protection': '#9467bd',
+            'Housing and community amenities': '#8c564b',
+            'Health': '#e377c2',
+            'Recreation, culture and religion': '#7f7f7f',
+            'Education': '#bcbd22', 
+            'Social protection': '#17becf'
+        }
+
+        munifiRevenueColors = {
+            'Tax revenue': '#1f77b4', 
+            'Grants and subsidies':  '#ff7f0e', 
+            'User charges and fees': '#2ca02c', 
+            'Income from assets': '#d62728',
+            'Other revenues': '#9467bd',
+        }
+
+        createLayerAndLegendCategorical("munifi-main-cat-expenditure", "MAIN_MUNIFI_EXPEND_x", "Main category<br>of expenditure", munifiExpendCatColors);
+        createLayerAndLegendCategorical("munifi-main-cofog-expenditure", "MAIN_MUNIFI_EXPEND_y", "Main sector of expenditure", munifiExpendCofogColors);
+        createLayerAndLegendCategorical("munifi-source-revenue", "MAIN_MUNIFI_REVENUE", "Main source of revenue", munifiRevenueColors);
+        createLayerAndLegend("munifi-tot-expenditure", "E1_USD_PPP_PS", "Total expenditure per capita", "USD PPP/capita", 0, 10000, [0, 2000, 4000, 6000, 8000, 10000], scaleBlues2, firstLayer = false, minusLow = false);
+        createLayerAndLegend("munifi-cur-expenditure", "E11_USD_PPP_PS", "Current expenditure per capita", "USD PPP/capita", 0, 10000, [0, 2000, 4000, 6000, 8000, 10000], scaleBlues2, firstLayer = false, minusLow = false);
+        createLayerAndLegend("munifi-cap-expenditure", "E12_USD_PPP_PS", "Capital expenditure per capita", "USD PPP/capita", 0, 10000, [0, 2000, 4000, 6000, 8000, 10000], scaleBlues2, firstLayer = false, minusLow = false);
+        
+        createLayerAndLegend("munifi-tot-revenue", "R1_USD_PPP_PS", "Total revenue per capita", "USD PPP/capita", 0, 10000, [0, 2000, 4000, 6000, 8000, 10000], scaleBlues2, firstLayer = false, minusLow = false);
+        createLayerAndLegend("munifi-tax-revenue", "R11_USD_PPP_PS", "Tax revenue per capita", "USD PPP/capita", 0, 10000, [0, 2000, 4000, 6000, 8000, 10000], scaleBlues2, firstLayer = false, minusLow = false);
+        createLayerAndLegend("munifi-tot-debt", "D1_USD_PPP_PS", "Total debt per capita", "USD PPP/capita", 0, 10000, [0, 2000, 4000, 6000, 8000, 10000], scaleBlues2, firstLayer = false, minusLow = false);
+
+        
+    </script>
+
+</body>
+
+</html>
